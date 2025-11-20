@@ -1,0 +1,95 @@
+/* Custom styles for Swiper navigation */
+.therapist-swiper {
+  padding: 0 50px !important;
+}
+
+.therapist-swiper .swiper-button-next,
+.therapist-swiper .swiper-button-prev {
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.therapist-swiper .swiper-button-next:hover,
+.therapist-swiper .swiper-button-prev:hover {
+  background-color: #f8f8f8;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.therapist-swiper .swiper-button-next::after,
+.therapist-swiper .swiper-button-prev::after {
+  font-size: 18px;
+  color: #666;
+}
+
+.therapist-swiper .swiper-button-next {
+  right: 0;
+}
+
+.therapist-swiper .swiper-button-prev {
+  left: 0;
+}
+
+/* Pagination styles */
+.therapist-swiper .swiper-pagination {
+  bottom: -30px !important;
+}
+
+.therapist-swiper .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background-color: #D45B7A;
+  opacity: 0.3;
+}
+
+.therapist-swiper .swiper-pagination-bullet-active {
+  opacity: 1;
+  background-color: #D45B7A;
+}
+
+/* Card transition */
+.card-container {
+  transform-origin: center center;
+  transition: transform 0.3s ease-out;
+}
+
+.card-container:hover {
+  transform: translateY(-4px);
+}
+
+/* Modal animation */
+@keyframes modalEntry {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-modalEntry {
+  animation: modalEntry 0.3s ease-out;
+}
+
+@media (max-width: 768px) {
+  .therapist-swiper {
+    padding: 0 30px !important;
+  }
+
+  .therapist-swiper .swiper-button-next,
+  .therapist-swiper .swiper-button-prev {
+    width: 30px;
+    height: 30px;
+  }
+
+  .therapist-swiper .swiper-button-next::after,
+  .therapist-swiper .swiper-button-prev::after {
+    font-size: 14px;
+  }
+}
