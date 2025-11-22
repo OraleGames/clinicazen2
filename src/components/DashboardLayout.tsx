@@ -41,7 +41,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
         { icon: MessageSquare, label: 'Notificaciones', href: `/dashboard/admin/notifications`, active: pathname.includes('/notifications') },
       ],
       therapist: [
-        { icon: Calendar, label: 'Mi Calendario', href: `/dashboard/therapist/schedule`, active: pathname.includes('/schedule') },
+        { icon: Calendar, label: 'Mi Calendario', href: `/dashboard/therapist/calendar`, active: pathname.includes('/calendar') },
         { icon: Users, label: 'Pacientes', href: `/dashboard/therapist/patients`, active: pathname.includes('/patients') },
         { icon: MessageSquare, label: 'Mensajes', href: `/dashboard/therapist/chat`, active: pathname.includes('/chat') },
         { icon: Star, label: 'Reseñas', href: `/dashboard/therapist/reviews`, active: pathname.includes('/reviews') },
