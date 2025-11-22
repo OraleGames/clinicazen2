@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { TherapyService } from '@/lib/database'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { createServiceSchema, updateServiceSchema } from '@/types/therapy'
+import { ZodError } from 'zod'
 
 // Helper to check admin access
 async function checkAdminAccess() {
@@ -64,55 +66,33 @@ export async function POST(request: NextRequest) {
     await checkAdminAccess()
 
     const body = await request.json()
-    const {
-      name,
-      description,
-      extended_description,
-      full_description,
-      duration_minutes,
-      price,
-      category_id,
-      category,
-      image_url,
-      image2_url,
-      image3_url,
-      back_image_url,
-      slug,
-      symptoms,
-      diseases,
-      is_active
-    } = body
+    
+    // Validate with Zod
+    const validatedData = createServiceSchema.parse(body)
 
-    // Validate required fields
-    if (!name || !description || !duration_minutes || !price) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-    }
-
-    const therapy = await TherapyService.createTherapy({
-      name,
-      description,
-      extended_description,
-      full_description,
-      duration_minutes,
-      price,
-      category_id,
-      category,
-      image_url,
-      image2_url,
-      image3_url,
-      back_image_url,
-      slug,
-      symptoms,
-      diseases,
-      is_active: is_active !== false // Default to true
-    })
+    const therapy = await TherapyService.createTherapy(validatedData)
 
     return NextResponse.json({ therapy }, { status: 201 })
   } catch (error: any) {
     console.error('Error creating therapy:', error)
+    
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { 
+          error: 'Datos inválidos', 
+          details: error.issues.map(e => ({ 
+            field: e.path.join('.'), 
+            message: e.message 
+          }))
+        }, 
+        { status: 400 }
+      )
+    }
+    
     if (error.message === 'Unauthorized' || error.message === 'Admin access required') {
       return NextResponse.json({ error: error.message }, { status: 403 })
     }
+    
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -124,20 +104,34 @@ export async function PUT(request: NextRequest) {
     await checkAdminAccess()
 
     const body = await request.json()
-    const { id, ...updates } = body
-
-    if (!id) {
-      return NextResponse.json({ error: 'Service ID is required' }, { status: 400 })
-    }
+    
+    // Validate with Zod
+    const validatedData = updateServiceSchema.parse(body)
+    const { id, ...updates } = validatedData
 
     const therapy = await TherapyService.updateTherapy(id, updates)
 
     return NextResponse.json({ therapy })
   } catch (error: any) {
     console.error('Error updating therapy:', error)
+    
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { 
+          error: 'Datos inválidos', 
+          details: error.issues.map(e => ({ 
+            field: e.path.join('.'), 
+            message: e.message 
+          }))
+        }, 
+        { status: 400 }
+      )
+    }
+    
     if (error.message === 'Unauthorized' || error.message === 'Admin access required') {
       return NextResponse.json({ error: error.message }, { status: 403 })
     }
+    
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

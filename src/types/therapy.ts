@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 // Frontend therapy type (static data)
 export interface Therapy {
   id: string;  // Changed from number to string
@@ -43,27 +45,30 @@ export interface Service extends DatabaseService {
   full_description?: string;
 }
 
-// Type for creating a new service
-export interface CreateServiceInput {
-  name: string;
-  description: string;
-  extended_description?: string;
-  full_description?: string;
-  image_url?: string;
-  image2_url?: string;
-  image3_url?: string;
-  back_image_url?: string;
-  price: number;
-  duration_minutes: number;
-  category_id?: number;
-  category?: string;
-  slug?: string;
-  symptoms?: string[];
-  diseases?: string[];
-  is_active?: boolean;
-}
+// Zod validation schemas
+export const createServiceSchema = z.object({
+  name: z.string().min(1, 'El nombre es requerido'),
+  description: z.string().min(1, 'La descripción es requerida'),
+  extended_description: z.string().optional(),
+  full_description: z.string().optional(),
+  image_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  image2_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  image3_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  back_image_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  price: z.number().positive('El precio debe ser mayor a 0'),
+  duration_minutes: z.number().int().positive('La duración debe ser mayor a 0'),
+  category_id: z.number().int().positive().optional(),
+  category: z.string().optional(),
+  slug: z.string().optional(),
+  symptoms: z.array(z.string()).optional(),
+  diseases: z.array(z.string()).optional(),
+  is_active: z.boolean().optional().default(true),
+})
 
-// Type for updating a service
-export interface UpdateServiceInput extends Partial<CreateServiceInput> {
-  id: number;
-}
+export const updateServiceSchema = createServiceSchema.partial().extend({
+  id: z.number().int().positive(),
+})
+
+// Type inference from Zod schemas
+export type CreateServiceInput = z.infer<typeof createServiceSchema>
+export type UpdateServiceInput = z.infer<typeof updateServiceSchema>
