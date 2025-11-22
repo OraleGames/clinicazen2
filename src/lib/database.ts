@@ -29,11 +29,18 @@ export interface DatabaseTherapy {
   name: string
   description: string
   extended_description?: string
+  full_description?: string
   image_url?: string
+  image2_url?: string
+  image3_url?: string
+  back_image_url?: string
   price: number
   duration_minutes: number
   category_id?: number
   category?: string
+  slug?: string
+  symptoms?: string[]
+  diseases?: string[]
   is_active: boolean
   created_at: string
   updated_at: string
@@ -203,79 +210,301 @@ export class UserService {
 
 // Therapy Service
 export class TherapyService {
-  // Get all therapies
-  static async getAllTherapies(): Promise<DatabaseTherapy[]> {
-    const { data, error } = await supabase
+  // Get all therapies with optional relationships
+  static async getAllTherapies(includeRelations: boolean = false): Promise<DatabaseTherapy[]> {
+    let query = supabase
       .from('therapies')
       .select('*')
-      .order('name', { ascending: true })
+
+    if (includeRelations) {
+      query = supabase
+        .from('therapies')
+        .select(`
+          *,
+          category:categories(name),
+          symptoms:service_symptoms(symptom:symptoms(name)),
+          diseases:service_diseases(disease:diseases(name))
+        `)
+    }
+
+    const { data, error } = await query.order('name', { ascending: true })
 
     if (error) throw error
+
+    // Transform data to flatten relationships if included
+    if (includeRelations && data) {
+      return data.map((therapy: any) => ({
+        ...therapy,
+        category: therapy.category?.name,
+        symptoms: therapy.symptoms?.map((s: any) => s.symptom?.name).filter(Boolean) || [],
+        diseases: therapy.diseases?.map((d: any) => d.disease?.name).filter(Boolean) || []
+      }))
+    }
+
     return data || []
   }
 
-  // Get active therapies
-  static async getActiveTherapies(): Promise<DatabaseTherapy[]> {
-    const { data, error } = await supabase
+  // Get active therapies with optional relationships
+  static async getActiveTherapies(includeRelations: boolean = false): Promise<DatabaseTherapy[]> {
+    let query = supabase
       .from('therapies')
       .select('*')
       .eq('is_active', true)
-      .order('name', { ascending: true })
+
+    if (includeRelations) {
+      query = supabase
+        .from('therapies')
+        .select(`
+          *,
+          category:categories(name),
+          symptoms:service_symptoms(symptom:symptoms(name)),
+          diseases:service_diseases(disease:diseases(name))
+        `)
+        .eq('is_active', true)
+    }
+
+    const { data, error } = await query.order('name', { ascending: true })
 
     if (error) throw error
+
+    // Transform data to flatten relationships if included
+    if (includeRelations && data) {
+      return data.map((therapy: any) => ({
+        ...therapy,
+        category: therapy.category?.name,
+        symptoms: therapy.symptoms?.map((s: any) => s.symptom?.name).filter(Boolean) || [],
+        diseases: therapy.diseases?.map((d: any) => d.disease?.name).filter(Boolean) || []
+      }))
+    }
+
     return data || []
   }
 
-  // Get therapy by ID
+  // Get therapy by ID with relationships
   static async getTherapyById(id: number): Promise<DatabaseTherapy | null> {
     const { data, error } = await supabase
       .from('therapies')
-      .select('*')
+      .select(`
+        *,
+        category:categories(name),
+        symptoms:service_symptoms(symptom:symptoms(name)),
+        diseases:service_diseases(disease:diseases(name))
+      `)
       .eq('id', id)
       .single()
 
     if (error) throw error
+
+    if (data) {
+      return {
+        ...data,
+        category: data.category?.name,
+        symptoms: data.symptoms?.map((s: any) => s.symptom?.name).filter(Boolean) || [],
+        diseases: data.diseases?.map((d: any) => d.disease?.name).filter(Boolean) || []
+      }
+    }
+
     return data
   }
 
-  // Create therapy
+  // Create therapy with relationships
   static async createTherapy(therapy: Omit<DatabaseTherapy, 'id' | 'created_at' | 'updated_at'>): Promise<DatabaseTherapy> {
     const admin = requireAdminClient()
-    const { data, error } = await admin
+
+    // Extract relationship data
+    const { symptoms, diseases, ...therapyData } = therapy
+
+    // Create the therapy first
+    const { data: newTherapy, error: therapyError } = await admin
       .from('therapies')
       // @ts-expect-error - Supabase type inference issue with dynamic table schemas
-      .insert(therapy as Record<string, unknown>)
+      .insert({
+        name: therapyData.name,
+        description: therapyData.description,
+        extended_description: therapyData.extended_description,
+        full_description: therapyData.full_description,
+        image_url: therapyData.image_url,
+        image2_url: therapyData.image2_url,
+        image3_url: therapyData.image3_url,
+        back_image_url: therapyData.back_image_url,
+        price: therapyData.price,
+        duration_minutes: therapyData.duration_minutes,
+        category_id: therapyData.category_id,
+        slug: therapyData.slug,
+        is_active: therapyData.is_active
+      } as Record<string, unknown>)
       .select()
       .single()
 
-    if (error) throw error
-    return data
+    if (therapyError) throw therapyError
+
+    // Handle symptoms relationships
+    if (symptoms && symptoms.length > 0) {
+      // @ts-expect-error - Checked above
+      await this.updateSymptoms(newTherapy.id, symptoms)
+    }
+
+    // Handle diseases relationships
+    if (diseases && diseases.length > 0) {
+      // @ts-expect-error - Checked above
+      await this.updateDiseases(newTherapy.id, diseases)
+    }
+
+    return newTherapy
   }
 
-  // Update therapy
+  // Update therapy with relationships
   static async updateTherapy(id: number, updates: Partial<DatabaseTherapy>): Promise<DatabaseTherapy> {
     const admin = requireAdminClient()
+
+    // Extract relationship data
+    const { symptoms, diseases, ...therapyUpdates } = updates
+
+    // Update the therapy
     const { data, error } = await admin
       .from('therapies')
       // @ts-expect-error - Supabase type inference issue with dynamic table schemas
-      .update(updates as Record<string, unknown>)
+      .update(therapyUpdates as Record<string, unknown>)
       .eq('id', id)
       .select()
       .single()
 
     if (error) throw error
+
+    // Update symptoms if provided
+    if (symptoms !== undefined) {
+      await this.updateSymptoms(id, symptoms)
+    }
+
+    // Update diseases if provided
+    if (diseases !== undefined) {
+      await this.updateDiseases(id, diseases)
+    }
+
     return data
   }
 
   // Delete therapy
   static async deleteTherapy(id: number): Promise<void> {
     const admin = requireAdminClient()
+
+    // Delete relationships first (cascade should handle this, but being explicit)
+    await admin.from('service_symptoms').delete().eq('service_id', id)
+    await admin.from('service_diseases').delete().eq('service_id', id)
+
+    // Delete the therapy
     const { error } = await admin
       .from('therapies')
       .delete()
       .eq('id', id)
 
     if (error) throw error
+  }
+
+  // Helper: Update symptoms relationships
+  private static async updateSymptoms(therapyId: number, symptomNames: string[]): Promise<void> {
+    const admin = requireAdminClient()
+
+    // Remove existing relationships
+    await admin.from('service_symptoms').delete().eq('service_id', therapyId)
+
+    if (symptomNames.length === 0) return
+
+    // Get or create symptoms
+    const symptomIds: number[] = []
+    for (const name of symptomNames) {
+      const trimmedName = name.trim()
+      if (!trimmedName) continue
+
+      // Try to find existing symptom
+      const { data: existing } = await admin
+        .from('symptoms')
+        .select('id')
+        .eq('name', trimmedName)
+        .single()
+
+      if (existing) {
+        // @ts-expect-error - Supabase type inference issue
+        symptomIds.push(existing.id)
+      } else {
+        // Create new symptom
+        const { data: newSymptom } = await admin
+          .from('symptoms')
+          // @ts-expect-error - Supabase type inference issue
+          .insert({ name: trimmedName })
+          .select('id')
+          .single()
+
+        if (newSymptom) {
+          // @ts-expect-error - Supabase type inference issue
+          symptomIds.push(newSymptom.id)
+        }
+      }
+    }
+
+    // Create relationships
+    if (symptomIds.length > 0) {
+      const relationships = symptomIds.map(symptomId => ({
+        service_id: therapyId,
+        symptom_id: symptomId
+      }))
+
+      // @ts-expect-error - Supabase type inference issue
+      await admin.from('service_symptoms').insert(relationships)
+    }
+  }
+
+  // Helper: Update diseases relationships
+  private static async updateDiseases(therapyId: number, diseaseNames: string[]): Promise<void> {
+    const admin = requireAdminClient()
+
+    // Remove existing relationships
+    await admin.from('service_diseases').delete().eq('service_id', therapyId)
+
+    if (diseaseNames.length === 0) return
+
+    // Get or create diseases
+    const diseaseIds: number[] = []
+    for (const name of diseaseNames) {
+      const trimmedName = name.trim()
+      if (!trimmedName) continue
+
+      // Try to find existing disease
+      const { data: existing } = await admin
+        .from('diseases')
+        .select('id')
+        .eq('name', trimmedName)
+        .single()
+
+      if (existing) {
+        // @ts-expect-error - Supabase type inference issue
+        diseaseIds.push(existing.id)
+      } else {
+        // Create new disease
+        const { data: newDisease } = await admin
+          .from('diseases')
+          // @ts-expect-error - Supabase type inference issue
+          .insert({ name: trimmedName })
+          .select('id')
+          .single()
+
+        if (newDisease) {
+          // @ts-expect-error - Supabase type inference issue
+          diseaseIds.push(newDisease.id)
+        }
+      }
+    }
+
+    // Create relationships
+    if (diseaseIds.length > 0) {
+      const relationships = diseaseIds.map(diseaseId => ({
+        service_id: therapyId,
+        disease_id: diseaseId
+      }))
+
+      // @ts-expect-error - Supabase type inference issue
+      await admin.from('service_diseases').insert(relationships)
+    }
   }
 }
 
@@ -367,7 +596,7 @@ export class AppointmentService {
   // Get appointments for a user (client or therapist)
   static async getUserAppointments(userId: string, role: 'CLIENT' | 'THERAPIST'): Promise<DatabaseAppointment[]> {
     const column = role === 'CLIENT' ? 'client_id' : 'therapist_id'
-    
+
     const { data, error } = await supabase
       .from('appointments')
       .select(`
