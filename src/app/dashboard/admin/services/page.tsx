@@ -318,14 +318,14 @@ export default function AdminServicesDashboard() {
               placeholder={t('services.searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 placeholder:text-gray-500"
             />
           </div>
           
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white"
           >
             <option value="all">{t('services.allCategories')}</option>
             {uniqueCategories.map(category => (
@@ -336,7 +336,7 @@ export default function AdminServicesDashboard() {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white"
           >
             <option value="all">{t('services.allStatus')}</option>
             <option value="active">{t('common.active')}</option>
@@ -472,8 +472,8 @@ export default function AdminServicesDashboard() {
 
         {/* Create/Edit Modal */}
         {(isCreating || isEditing) && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-gray-900/20 flex items-start justify-center z-50 p-4 pt-8 overflow-y-auto">
+            <div className="bg-white rounded-lg max-w-2xl w-full shadow-2xl border border-gray-200">
               <div className="p-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
                   {isCreating ? t('services.createService') : t('services.editService')}
@@ -488,7 +488,7 @@ export default function AdminServicesDashboard() {
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white placeholder:text-gray-500"
                       placeholder="Ej: Biomagnetismo"
                     />
                   </div>
@@ -501,7 +501,7 @@ export default function AdminServicesDashboard() {
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white placeholder:text-gray-500"
                       placeholder="Descripción breve del servicio"
                     />
                   </div>
@@ -514,7 +514,7 @@ export default function AdminServicesDashboard() {
                       value={formData.extended_description}
                       onChange={(e) => setFormData({ ...formData, extended_description: e.target.value })}
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white placeholder:text-gray-500"
                       placeholder="Descripción extendida"
                     />
                   </div>
@@ -528,7 +528,7 @@ export default function AdminServicesDashboard() {
                         type="number"
                         value={formData.price}
                         onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white"
                         min="0"
                         step="0.01"
                       />
@@ -542,7 +542,7 @@ export default function AdminServicesDashboard() {
                         type="number"
                         value={formData.duration_minutes}
                         onChange={(e) => setFormData({ ...formData, duration_minutes: Number(e.target.value) })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white"
                         min="1"
                         step="15"
                       />
@@ -557,7 +557,7 @@ export default function AdminServicesDashboard() {
                       type="text"
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white placeholder:text-gray-500"
                       placeholder="Ej: Terapia Alternativa"
                     />
                   </div>
@@ -570,7 +570,7 @@ export default function AdminServicesDashboard() {
                       type="text"
                       value={formData.slug}
                       onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white placeholder:text-gray-500"
                       placeholder="biomagnetismo (se genera automáticamente si está vacío)"
                     />
                   </div>
@@ -583,7 +583,7 @@ export default function AdminServicesDashboard() {
                       type="text"
                       value={formData.image_url}
                       onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white placeholder:text-gray-500"
                       placeholder="/images/services/..."
                     />
                   </div>
@@ -599,7 +599,7 @@ export default function AdminServicesDashboard() {
                         ...formData, 
                         symptoms: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
                       })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white placeholder:text-gray-500"
                       placeholder={t('services.symptomsPlaceholder')}
                     />
                     <p className="text-xs text-gray-500 mt-1">Separar con comas</p>
@@ -616,7 +616,7 @@ export default function AdminServicesDashboard() {
                         ...formData, 
                         diseases: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
                       })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white placeholder:text-gray-500"
                       placeholder={t('services.diseasesPlaceholder')}
                     />
                     <p className="text-xs text-gray-500 mt-1">Separar con comas</p>
@@ -644,6 +644,7 @@ export default function AdminServicesDashboard() {
                       setIsEditing(false)
                     }}
                     disabled={createMutation.isPending || updateMutation.isPending}
+                    className="text-gray-700 hover:text-gray-900"
                   >
                     {t('services.cancel')}
                   </Button>
@@ -662,8 +663,8 @@ export default function AdminServicesDashboard() {
 
         {/* Delete Confirmation Modal */}
         {showDeleteConfirm !== null && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+          <div className="fixed inset-0 bg-gray-900/20 flex items-start justify-center z-50 p-4 pt-20 overflow-y-auto">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-2xl border border-gray-200">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
                   <AlertCircle className="h-6 w-6 text-red-600" />
@@ -679,6 +680,7 @@ export default function AdminServicesDashboard() {
                   variant="outline"
                   onClick={() => setShowDeleteConfirm(null)}
                   disabled={deleteMutation.isPending}
+                  className="text-gray-700 hover:text-gray-900"
                 >
                   {t('services.cancel')}
                 </Button>
