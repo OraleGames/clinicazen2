@@ -45,24 +45,15 @@ export interface Service extends DatabaseService {
   full_description?: string;
 }
 
-// Zod validation schemas
+// Zod validation schemas - only fields that exist in database
 export const createServiceSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   description: z.string().min(1, 'La descripción es requerida'),
   extended_description: z.string().optional(),
-  full_description: z.string().optional(),
   image_url: z.string().url('URL inválida').optional().or(z.literal('')),
-  image2_url: z.string().url('URL inválida').optional().or(z.literal('')),
-  image3_url: z.string().url('URL inválida').optional().or(z.literal('')),
-  back_image_url: z.string().url('URL inválida').optional().or(z.literal('')),
   price: z.number().positive('El precio debe ser mayor a 0'),
   duration_minutes: z.number().int().positive('La duración debe ser mayor a 0'),
   category_id: z.number().int().positive().optional(),
-  category: z.string().optional(),
-  slug: z.string().optional(),
-  symptoms: z.array(z.string()).optional(),
-  diseases: z.array(z.string()).optional(),
-  is_active: z.boolean().optional().default(true),
 })
 
 export const updateServiceSchema = createServiceSchema.partial().extend({

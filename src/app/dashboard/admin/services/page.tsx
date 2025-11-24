@@ -1,4 +1,4 @@
-"use client"
+'use client';
 
 import React, { useState, useEffect, useMemo } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
@@ -53,23 +53,14 @@ export default function AdminServicesDashboard() {
   const [filterStatus, setFilterStatus] = useState('all')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null)
 
-  // Form state
+  // Form state - only include fields that exist in the database schema
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     extended_description: '',
-    full_description: '',
     price: 0,
     duration_minutes: 60,
-    category: '',
-    image_url: '',
-    image2_url: '',
-    image3_url: '',
-    back_image_url: '',
-    slug: '',
-    symptoms: [] as string[],
-    diseases: [] as string[],
-    is_active: true
+    image_url: ''
   })
 
   // Handle escape key to close modals
@@ -116,18 +107,9 @@ export default function AdminServicesDashboard() {
       name: service.name || '',
       description: service.description || '',
       extended_description: service.extended_description || '',
-      full_description: service.full_description || '',
       price: service.price || 0,
       duration_minutes: service.duration_minutes || 60,
-      category: service.category || '',
-      image_url: service.image_url || '',
-      image2_url: service.image2_url || '',
-      image3_url: service.image3_url || '',
-      back_image_url: service.back_image_url || '',
-      slug: service.slug || '',
-      symptoms: service.symptoms || [],
-      diseases: service.diseases || [],
-      is_active: service.is_active !== false
+      image_url: service.image_url || ''
     })
     setIsEditing(true)
   }
@@ -138,32 +120,20 @@ export default function AdminServicesDashboard() {
       name: '',
       description: '',
       extended_description: '',
-      full_description: '',
       price: 0,
       duration_minutes: 60,
-      category: '',
-      image_url: '',
-      image2_url: '',
-      image3_url: '',
-      back_image_url: '',
-      slug: '',
-      symptoms: [],
-      diseases: [],
-      is_active: true
+      image_url: ''
     })
     setIsCreating(true)
   }
 
   const handleSaveService = async () => {
     try {
-      // Auto-generate slug if empty
-      const slug = formData.slug || formData.name.toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '')
-
       const serviceData = {
-        ...formData,
-        slug,
+        name: formData.name,
+        description: formData.description,
+        extended_description: formData.extended_description,
+        image_url: formData.image_url,
         price: Number(formData.price),
         duration_minutes: Number(formData.duration_minutes)
       }
@@ -472,7 +442,7 @@ export default function AdminServicesDashboard() {
 
         {/* Create/Edit Modal */}
         {(isCreating || isEditing) && (
-          <div className="fixed inset-0 bg-gray-900/20 flex items-start justify-center z-50 p-4 pt-8 overflow-y-auto">
+          <div className="fixed inset-0 bg-gray-900/20 flex items-center justify-center z-50 p-4 overflow-y-auto">
             <div className="bg-white rounded-lg max-w-2xl w-full shadow-2xl border border-gray-200">
               <div className="p-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -549,32 +519,7 @@ export default function AdminServicesDashboard() {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('services.category')}
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white placeholder:text-gray-500"
-                      placeholder="Ej: Terapia Alternativa"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('services.slug')}
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.slug}
-                      onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white placeholder:text-gray-500"
-                      placeholder="biomagnetismo (se genera automáticamente si está vacío)"
-                    />
-                  </div>
-
+                  {/* Image URL field - temporarily disabled
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       {t('services.imageUrl')}
@@ -587,53 +532,7 @@ export default function AdminServicesDashboard() {
                       placeholder="/images/services/..."
                     />
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('services.symptoms')}
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.symptoms.join(', ')}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        symptoms: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white placeholder:text-gray-500"
-                      placeholder={t('services.symptomsPlaceholder')}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Separar con comas</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {t('services.diseases')}
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.diseases.join(', ')}
-                      onChange={(e) => setFormData({ 
-                        ...formData, 
-                        diseases: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white placeholder:text-gray-500"
-                      placeholder={t('services.diseasesPlaceholder')}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Separar con comas</p>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="is_active"
-                      checked={formData.is_active}
-                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                      className="rounded border-gray-300 text-teal-600 focus:ring-teal-500"
-                    />
-                    <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
-                      {t('services.isActive')}
-                    </label>
-                  </div>
+                  */}
                 </div>
 
                 <div className="flex justify-end gap-3 mt-6">
