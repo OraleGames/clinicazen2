@@ -141,6 +141,10 @@ export default function AdminServicesDashboard() {
         duration_minutes: Number(formData.duration_minutes)
       }
 
+      if (!formData.name.trim() || !formData.description.trim() || formData.price <= 0 || formData.duration_minutes <= 0) {
+        toast.error(t('services.requiredFields'))
+        return
+      }
       if (isCreating) {
         await createMutation.mutateAsync(serviceData)
         toast.success(t('services.successCreated'))
@@ -656,7 +660,7 @@ export default function AdminServicesDashboard() {
                     className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
                     disabled={createMutation.isPending || updateMutation.isPending}
                   >
-                    {(createMutation.isPending || updateMutation.isPending) ? 'Guardando...' : t('services.saveChanges')}
+                    {(createMutation.isPending || updateMutation.isPending) ?  t('common.saving') : t('services.saveChanges')}
                   </Button>
                 </div>
               </div>

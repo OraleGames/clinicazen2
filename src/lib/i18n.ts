@@ -31,6 +31,7 @@ export const es = {
     edit: 'Editar',
     delete: 'Eliminar',
     save: 'Guardar',
+    saving: 'Guardando...',
     cancel: 'Cancelar',
     search: 'Buscar',
     filter: 'Filtrar',

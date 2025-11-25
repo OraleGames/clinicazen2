@@ -50,7 +50,7 @@ export const createServiceSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   description: z.string().min(1, 'La descripción es requerida'),
   extended_description: z.string().optional(),
-  image_url: z.string().url('URL inválida').optional().or(z.literal('')),
+  image_url: z.union([z.url('URL inválida'), z.literal('')]).optional(),
   price: z.number().positive('El precio debe ser mayor a 0'),
   duration_minutes: z.number().int().positive('La duración debe ser mayor a 0'),
   category_id: z.number().int().positive().optional(),

@@ -27,12 +27,15 @@ async function checkAdminAccess() {
   }
 
   // Check admin role
-  const { data: profile } = await supabase
+  const { data: profile, error } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', session.user.id)
     .single()
 
+  if (error) {
+    throw new Error('Failed to verify user role')
+  }
   if (profile?.role !== 'ADMIN') {
     throw new Error('Admin access required')
   }
@@ -47,6 +50,10 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const active = searchParams.get('active') !== 'false' // Default to true
+
+    if (!active) {
+      await checkAdminAccess()
+    }
 
     const therapies = active
       ? await TherapyService.getActiveTherapies()
@@ -66,7 +73,7 @@ export async function POST(request: NextRequest) {
     await checkAdminAccess()
 
     const body = await request.json()
-    
+
     // Validate with Zod
     const validatedData = createServiceSchema.parse(body)
 
@@ -75,24 +82,24 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ therapy }, { status: 201 })
   } catch (error: any) {
     console.error('Error creating therapy:', error)
-    
+
     if (error instanceof ZodError) {
       return NextResponse.json(
-        { 
-          error: 'Datos inválidos', 
-          details: error.issues.map(e => ({ 
-            field: e.path.join('.'), 
-            message: e.message 
+        {
+          error: 'Datos inválidos',
+          details: error.issues.map(e => ({
+            field: e.path.join('.'),
+            message: e.message
           }))
-        }, 
+        },
         { status: 400 }
       )
     }
-    
+
     if (error.message === 'Unauthorized' || error.message === 'Admin access required') {
       return NextResponse.json({ error: error.message }, { status: 403 })
     }
-    
+
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -104,7 +111,7 @@ export async function PUT(request: NextRequest) {
     await checkAdminAccess()
 
     const body = await request.json()
-    
+
     // Validate with Zod
     const validatedData = updateServiceSchema.parse(body)
     const { id, ...updates } = validatedData
@@ -114,24 +121,24 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ therapy })
   } catch (error: any) {
     console.error('Error updating therapy:', error)
-    
+
     if (error instanceof ZodError) {
       return NextResponse.json(
-        { 
-          error: 'Datos inválidos', 
-          details: error.issues.map(e => ({ 
-            field: e.path.join('.'), 
-            message: e.message 
+        {
+          error: 'Datos inválidos',
+          details: error.issues.map(e => ({
+            field: e.path.join('.'),
+            message: e.message
           }))
-        }, 
+        },
         { status: 400 }
       )
     }
-    
+
     if (error.message === 'Unauthorized' || error.message === 'Admin access required') {
       return NextResponse.json({ error: error.message }, { status: 403 })
     }
-    
+
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

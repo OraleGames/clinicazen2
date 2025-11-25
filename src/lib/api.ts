@@ -88,8 +88,14 @@ export async function createService(input: CreateServiceInput): Promise<Service>
   })
   
   if (!response.ok) {
-    const error = await response.json()
-    throw new Error(error.error || 'Error al crear el servicio')
+    let errorMessage = 'Error al crear el servicio'
+    try {
+      const error = await response.json()
+      errorMessage = error.error || errorMessage
+    } catch {
+      // JSON parsing failed, use default message
+    }
+    throw new Error(errorMessage)
   }
   
   const data = await response.json()

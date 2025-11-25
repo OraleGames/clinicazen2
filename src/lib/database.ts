@@ -410,45 +410,40 @@ export class TherapyService {
 
     if (symptomNames.length === 0) return
 
-    // Get or create symptoms
-    const symptomIds: number[] = []
-    for (const name of symptomNames) {
-      const trimmedName = name.trim()
-      if (!trimmedName) continue
+    // Batch approach to avoid N+1 queries
+    const trimmedNames = symptomNames.map(n => n.trim()).filter(Boolean)
+    if (trimmedNames.length === 0) return
 
-      // Try to find existing symptom
-      const { data: existing } = await admin
+    // Fetch all existing symptoms in one query
+    const { data: existingSymptoms, error: existingError } = await admin
+      .from('symptoms')
+      .select('id, name')
+      .in('name', trimmedNames)
+    if (existingError) throw existingError
+
+    type SymptomRecord = { id: number; name: string }
+    const existingArray: SymptomRecord[] = (existingSymptoms as SymptomRecord[] | null) ?? []
+    const existingMap = new Map<string, number>(existingArray.map(s => [s.name, s.id]))
+
+    const newNames = trimmedNames.filter(name => !existingMap.has(name))
+
+    if (newNames.length > 0) {
+      const { data: createdSymptoms, error: createError } = await admin
         .from('symptoms')
-        .select('id')
-        .eq('name', trimmedName)
-        .single()
-
-      if (existing) {
         // @ts-expect-error - Supabase type inference issue
-        symptomIds.push(existing.id)
-      } else {
-        // Create new symptom
-        const { data: newSymptom } = await admin
-          .from('symptoms')
-          // @ts-expect-error - Supabase type inference issue
-          .insert({ name: trimmedName })
-          .select('id')
-          .single()
-
-        if (newSymptom) {
-          // @ts-expect-error - Supabase type inference issue
-          symptomIds.push(newSymptom.id)
-        }
-      }
+        .insert(newNames.map(name => ({ name })))
+        .select('id, name')
+      if (createError) throw createError
+      const createdArray: SymptomRecord[] = (createdSymptoms as SymptomRecord[] | null) ?? []
+      createdArray.forEach(s => existingMap.set(s.name, s.id))
     }
 
-    // Create relationships
-    if (symptomIds.length > 0) {
-      const relationships = symptomIds.map(symptomId => ({
-        service_id: therapyId,
-        symptom_id: symptomId
-      }))
+    const symptomIds = trimmedNames
+      .map(name => existingMap.get(name))
+      .filter((id): id is number => typeof id === 'number')
 
+    if (symptomIds.length > 0) {
+      const relationships = symptomIds.map(symptomId => ({ service_id: therapyId, symptom_id: symptomId }))
       // @ts-expect-error - Supabase type inference issue
       await admin.from('service_symptoms').insert(relationships)
     }
