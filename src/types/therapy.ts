@@ -54,6 +54,7 @@ export const createServiceSchema = z.object({
   price: z.number().positive('El precio debe ser mayor a 0'),
   duration_minutes: z.number().int().positive('La duración debe ser mayor a 0'),
   category_id: z.number().int().positive().optional(),
+  is_active: z.boolean().default(true),
 })
 
 export const updateServiceSchema = createServiceSchema.partial().extend({
