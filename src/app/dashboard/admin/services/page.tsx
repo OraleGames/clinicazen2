@@ -54,7 +54,7 @@ export default function AdminServicesDashboard() {
   const [filterCategory, setFilterCategory] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null)
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
 
   // Form state - only include fields that exist in the database schema
   const [formData, setFormData] = useState({
@@ -218,7 +218,7 @@ export default function AdminServicesDashboard() {
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-teal-800 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
             {t('services.title')}
           </h1>
           <p className="text-gray-600 mt-1">{t('services.description')}</p>
@@ -226,58 +226,58 @@ export default function AdminServicesDashboard() {
 
         {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5 mb-6">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-blue-700">{t('services.totalServices')}</CardTitle>
+              <Heart className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-900">{stats.total}</div>
+              <p className="text-xs text-blue-600 mt-1">{t('services.totalServicesDesc')}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200 hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-cyan-700">{t('services.active')}</CardTitle>
+              <Eye className="h-4 w-4 text-cyan-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-cyan-900">{stats.active}</div>
+              <p className="text-xs text-cyan-600 mt-1">{t('services.activeDesc')}</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-slate-50 to-slate-100 border-slate-200 hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-slate-700">{t('services.inactive')}</CardTitle>
+              <EyeOff className="h-4 w-4 text-slate-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-slate-900">{stats.inactive}</div>
+              <p className="text-xs text-slate-600 mt-1">{t('services.inactiveDesc')}</p>
+            </CardContent>
+          </Card>
+
           <Card className="bg-gradient-to-br from-teal-50 to-teal-100 border-teal-200 hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-teal-700">{t('services.totalServices')}</CardTitle>
-              <Heart className="h-4 w-4 text-teal-600" />
+              <CardTitle className="text-sm font-medium text-teal-700">{t('services.categories')}</CardTitle>
+              <Tag className="h-4 w-4 text-teal-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-teal-900">{stats.total}</div>
-              <p className="text-xs text-teal-600 mt-1">{t('services.totalServicesDesc')}</p>
+              <div className="text-2xl font-bold text-teal-900">{stats.categories}</div>
+              <p className="text-xs text-teal-600 mt-1">{t('services.categoriesDesc')}</p>
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 hover:shadow-lg transition-shadow">
+          <Card className="bg-gradient-to-br from-blue-50 via-cyan-50 to-teal-50 border-blue-200 hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-green-700">{t('services.active')}</CardTitle>
-              <Eye className="h-4 w-4 text-green-600" />
+              <CardTitle className="text-sm font-medium text-blue-700">{t('services.avgPrice')}</CardTitle>
+              <DollarSign className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-900">{stats.active}</div>
-              <p className="text-xs text-green-600 mt-1">{t('services.activeDesc')}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200 hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-700">{t('services.inactive')}</CardTitle>
-              <EyeOff className="h-4 w-4 text-gray-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{stats.inactive}</div>
-              <p className="text-xs text-gray-600 mt-1">{t('services.inactiveDesc')}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-purple-700">{t('services.categories')}</CardTitle>
-              <Tag className="h-4 w-4 text-purple-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-purple-900">{stats.categories}</div>
-              <p className="text-xs text-purple-600 mt-1">{t('services.categoriesDesc')}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200 hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-amber-700">{t('services.avgPrice')}</CardTitle>
-              <DollarSign className="h-4 w-4 text-amber-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-amber-900">${stats.avgPrice}</div>
-              <p className="text-xs text-amber-600 mt-1">{t('services.avgPriceDesc')}</p>
+              <div className="text-2xl font-bold text-blue-900">{stats.avgPrice}</div>
+              <p className="text-xs text-blue-600 mt-1">{t('services.avgPriceDesc')}</p>
             </CardContent>
           </Card>
         </div>
@@ -316,12 +316,12 @@ export default function AdminServicesDashboard() {
             <option value="inactive">{t('common.inactive')}</option>
           </select>
 
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <Button
               variant={viewMode === 'grid' ? 'default' : 'outline'}
               size="icon"
               onClick={() => setViewMode('grid')}
-              className={viewMode === 'grid' ? 'bg-teal-600 hover:bg-teal-700' : ''}
+              className={viewMode === 'grid' ? 'bg-cyan-600 hover:bg-cyan-700' : ''}
             >
               <Grid3x3 className="h-5 w-5" />
             </Button>
@@ -329,7 +329,7 @@ export default function AdminServicesDashboard() {
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="icon"
               onClick={() => setViewMode('list')}
-              className={viewMode === 'list' ? 'bg-teal-600 hover:bg-teal-700' : ''}
+              className={viewMode === 'list' ? 'bg-cyan-600 hover:bg-cyan-700' : ''}
             >
               <List className="h-5 w-5" />
             </Button>
@@ -337,7 +337,7 @@ export default function AdminServicesDashboard() {
 
           <Button 
             onClick={handleCreateService}
-            className="bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white shadow-lg hover:shadow-xl transition-all"
+            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg hover:shadow-xl transition-all"
           >
             <Plus className="h-5 w-5 mr-2" />
             {t('services.newService')}
@@ -355,14 +355,14 @@ export default function AdminServicesDashboard() {
             {filteredServices.map((service) => (
               <Card 
                 key={service.id} 
-                className="group hover:shadow-xl transition-all duration-300 border-2 hover:border-teal-300 relative overflow-hidden"
+                className="group hover:shadow-xl transition-all duration-300 border hover:border-cyan-300 relative overflow-hidden"
               >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-teal-500 to-teal-700 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></div>
                 
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-teal-700 transition-colors line-clamp-1">
+                      <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-cyan-700 transition-colors line-clamp-1">
                         {service.name || t('services.noName')}
                       </CardTitle>
                       {service.category && (
@@ -373,7 +373,7 @@ export default function AdminServicesDashboard() {
                     </div>
                     <Badge 
                       variant={service.is_active ? 'default' : 'secondary'}
-                      className={service.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
+                      className={service.is_active ? 'bg-cyan-100 text-cyan-800' : 'bg-slate-100 text-slate-800'}
                     >
                       {service.is_active ? t('common.active') : t('common.inactive')}
                     </Badge>
@@ -386,9 +386,9 @@ export default function AdminServicesDashboard() {
                   </p>
 
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="flex items-center gap-1 text-teal-700">
+                    <div className="flex items-center gap-1 text-blue-700">
                       <DollarSign className="h-4 w-4" />
-                      <span className="font-semibold">${service.price}</span>
+                      <span className="font-semibold">{service.price}</span>
                     </div>
                     <div className="flex items-center gap-1 text-gray-600">
                       <Clock className="h-4 w-4" />
@@ -419,7 +419,7 @@ export default function AdminServicesDashboard() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleEditService(service)}
-                      className="hover:bg-teal-50 hover:text-teal-700 hover:border-teal-300"
+                      className="hover:bg-cyan-50 hover:text-cyan-700 hover:border-cyan-300"
                       disabled={updateMutation.isPending}
                     >
                       <Edit className="h-4 w-4 mr-1" />
@@ -429,7 +429,7 @@ export default function AdminServicesDashboard() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleToggleServiceStatus(service.id)}
-                      className={service.is_active ? 'hover:bg-gray-50' : 'hover:bg-green-50'}
+                      className={service.is_active ? 'hover:bg-slate-50' : 'hover:bg-cyan-50'}
                       disabled={toggleStatusMutation.isPending}
                     >
                       {service.is_active ? (
@@ -469,68 +469,67 @@ export default function AdminServicesDashboard() {
                   <div className="space-y-3">
                     {/* First Row: Main Info & Actions */}
                     <div className="flex items-center justify-between gap-4">
-                      <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                        {/* Name & Status */}
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-gray-900">{service.name || t('services.noName')}</h3>
-                            <Badge 
-                              variant={service.is_active ? 'default' : 'secondary'}
-                              className={service.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
-                            >
-                              {service.is_active ? t('common.active') : t('common.inactive')}
-                            </Badge>
-                          </div>
-                        </div>
+                      {/* Left side: Name & Status */}
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 truncate">{service.name || t('services.noName')}</h3>
+                        <Badge 
+                          variant={service.is_active ? 'default' : 'secondary'}
+                          className={service.is_active ? 'bg-cyan-100 text-cyan-800 flex-shrink-0' : 'bg-slate-100 text-slate-800 flex-shrink-0'}
+                        >
+                          {service.is_active ? t('common.active') : t('common.inactive')}
+                        </Badge>
+                      </div>
 
+                      {/* Right side: Category, Price, Duration & Actions */}
+                      <div className="flex items-center gap-6 flex-shrink-0">
                         {/* Category */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           <Tag className="h-4 w-4 text-gray-400" />
                           <span className="text-sm text-gray-600">{service.category || 'Sin categoría'}</span>
                         </div>
 
                         {/* Price */}
-                        <div className="flex items-center gap-2">
-                          <DollarSign className="h-4 w-4 text-teal-600" />
-                          <span className="font-semibold text-teal-700">${service.price}</span>
+                        <div className="flex items-center gap-1.5">
+                          <DollarSign className="h-4 w-4 text-blue-600" />
+                          <span className="font-semibold text-blue-700">{service.price}</span>
                         </div>
 
                         {/* Duration */}
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           <Clock className="h-4 w-4 text-gray-400" />
                           <span className="text-sm text-gray-600">{service.duration_minutes} min</span>
                         </div>
-                      </div>
 
-                      {/* Actions */}
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEditService(service)}
-                          className="hover:bg-teal-50 hover:text-teal-700 hover:border-teal-300"
-                          disabled={updateMutation.isPending}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleToggleServiceStatus(service.id)}
-                          className={service.is_active ? 'hover:bg-gray-50' : 'hover:bg-green-50'}
-                          disabled={toggleStatusMutation.isPending}
-                        >
-                          {service.is_active ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setShowDeleteConfirm(service.id)}
-                          className="hover:bg-red-50 hover:text-red-700 hover:border-red-300"
-                          disabled={deleteMutation.isPending}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 ml-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditService(service)}
+                            className="hover:bg-cyan-50 hover:text-cyan-700 hover:border-cyan-300"
+                            disabled={updateMutation.isPending}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleToggleServiceStatus(service.id)}
+                            className={service.is_active ? 'hover:bg-slate-50' : 'hover:bg-cyan-50'}
+                            disabled={toggleStatusMutation.isPending}
+                          >
+                            {service.is_active ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowDeleteConfirm(service.id)}
+                            className="hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
 
@@ -654,7 +653,7 @@ export default function AdminServicesDashboard() {
                   </Button>
                   <Button
                     onClick={handleSaveService}
-                    className="bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white"
+                    className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white"
                     disabled={createMutation.isPending || updateMutation.isPending}
                   >
                     {(createMutation.isPending || updateMutation.isPending) ? 'Guardando...' : t('services.saveChanges')}
