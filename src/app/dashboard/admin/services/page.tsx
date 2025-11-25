@@ -17,7 +17,9 @@ import {
   Tag,
   Eye,
   EyeOff,
-  AlertCircle
+  AlertCircle,
+  Grid3x3,
+  List
 } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import type { Service } from '@/types/therapy'
@@ -52,6 +54,7 @@ export default function AdminServicesDashboard() {
   const [filterCategory, setFilterCategory] = useState('all')
   const [filterStatus, setFilterStatus] = useState('all')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   // Form state - only include fields that exist in the database schema
   const [formData, setFormData] = useState({
@@ -313,6 +316,25 @@ export default function AdminServicesDashboard() {
             <option value="inactive">{t('common.inactive')}</option>
           </select>
 
+          <div className="flex gap-2">
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'outline'}
+              size="icon"
+              onClick={() => setViewMode('grid')}
+              className={viewMode === 'grid' ? 'bg-teal-600 hover:bg-teal-700' : ''}
+            >
+              <Grid3x3 className="h-5 w-5" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="icon"
+              onClick={() => setViewMode('list')}
+              className={viewMode === 'list' ? 'bg-teal-600 hover:bg-teal-700' : ''}
+            >
+              <List className="h-5 w-5" />
+            </Button>
+          </div>
+
           <Button 
             onClick={handleCreateService}
             className="bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white shadow-lg hover:shadow-xl transition-all"
@@ -322,13 +344,13 @@ export default function AdminServicesDashboard() {
           </Button>
         </div>
 
-        {/* Services Grid */}
+        {/* Services Display */}
         {filteredServices.length === 0 ? (
           <Card className="p-12 text-center">
             <Heart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600">{t('services.noServices')}</p>
           </Card>
-        ) : (
+        ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredServices.map((service) => (
               <Card 
@@ -434,6 +456,89 @@ export default function AdminServicesDashboard() {
                     <Trash2 className="h-4 w-4 mr-1" />
                     {t('services.delete')}
                   </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          // List View
+          <div className="space-y-3">
+            {filteredServices.map((service) => (
+              <Card key={service.id} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    {/* First Row: Main Info & Actions */}
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex-1 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                        {/* Name & Status */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold text-gray-900">{service.name || t('services.noName')}</h3>
+                            <Badge 
+                              variant={service.is_active ? 'default' : 'secondary'}
+                              className={service.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}
+                            >
+                              {service.is_active ? t('common.active') : t('common.inactive')}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        {/* Category */}
+                        <div className="flex items-center gap-2">
+                          <Tag className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">{service.category || 'Sin categoría'}</span>
+                        </div>
+
+                        {/* Price */}
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="h-4 w-4 text-teal-600" />
+                          <span className="font-semibold text-teal-700">${service.price}</span>
+                        </div>
+
+                        {/* Duration */}
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">{service.duration_minutes} min</span>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditService(service)}
+                          className="hover:bg-teal-50 hover:text-teal-700 hover:border-teal-300"
+                          disabled={updateMutation.isPending}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleToggleServiceStatus(service.id)}
+                          className={service.is_active ? 'hover:bg-gray-50' : 'hover:bg-green-50'}
+                          disabled={toggleStatusMutation.isPending}
+                        >
+                          {service.is_active ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowDeleteConfirm(service.id)}
+                          className="hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+                          disabled={deleteMutation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Second Row: Description */}
+                    <div className="pt-2 border-t border-gray-100">
+                      <p className="text-sm text-gray-600">{service.description}</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ))}
