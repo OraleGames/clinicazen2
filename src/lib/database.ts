@@ -458,39 +458,56 @@ export class TherapyService {
 
     if (diseaseNames.length === 0) return
 
-    // Get or create diseases
-    const diseaseIds: number[] = []
-    for (const name of diseaseNames) {
-      const trimmedName = name.trim()
-      if (!trimmedName) continue
+    // 1. Prepare unique, trimmed disease names
+    const trimmedNames = Array.from(
+      new Set(
+        diseaseNames.map(name => name.trim()).filter(name => !!name)
+      )
+    )
+    if (trimmedNames.length === 0) return
 
-      // Try to find existing disease
-      const { data: existing } = await admin
-        .from('diseases')
-        .select('id')
-        .eq('name', trimmedName)
-        .single()
+    // 2. Query all existing diseases in one go
+    const { data: existingDiseases, error: selectError } = await admin
+      .from('diseases')
+      .select('id, name')
+      .in('name', trimmedNames)
+    if (selectError) throw selectError
 
-      if (existing) {
+    const existingNameToId = new Map<string, number>()
+    if (existingDiseases) {
+      for (const d of existingDiseases) {
         // @ts-expect-error - Supabase type inference issue
-        diseaseIds.push(existing.id)
-      } else {
-        // Create new disease
-        const { data: newDisease } = await admin
-          .from('diseases')
-          // @ts-expect-error - Supabase type inference issue
-          .insert({ name: trimmedName })
-          .select('id')
-          .single()
+        existingNameToId.set(d.name, d.id)
+      }
+    }
 
-        if (newDisease) {
+    // 3. Find names that do not exist yet
+    const missingNames = trimmedNames.filter(name => !existingNameToId.has(name))
+
+    // 4. Insert missing diseases in bulk
+    if (missingNames.length > 0) {
+      // @ts-expect-error - Supabase type inference issue
+      const { data: insertedDiseases, error: insertError } = await admin
+        .from('diseases')
+        .insert(missingNames.map(name => ({ name })))
+        .select('id, name')
+      if (insertError) throw insertError
+      if (insertedDiseases) {
+        for (const d of insertedDiseases) {
           // @ts-expect-error - Supabase type inference issue
-          diseaseIds.push(newDisease.id)
+          existingNameToId.set(d.name, d.id)
         }
       }
     }
 
-    // Create relationships
+    // 5. Collect all disease IDs in the order of trimmedNames
+    const diseaseIds: number[] = []
+    for (const name of trimmedNames) {
+      const id = existingNameToId.get(name)
+      if (id) diseaseIds.push(id)
+    }
+
+    // 6. Create relationships
     if (diseaseIds.length > 0) {
       const relationships = diseaseIds.map(diseaseId => ({
         service_id: therapyId,
