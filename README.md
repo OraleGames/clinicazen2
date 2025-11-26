@@ -27,10 +27,10 @@ A complete therapy booking and management platform built with Next.js, featuring
 ## 🎨 Design System
 
 **Medical Theme** with professional gradients and modern UI:
-- **Blue** (#3B82F6) - Trust, professionalism
-- **Cyan** (#06B6D4) - Innovation, freshness
-- **Teal** (#14B8A6) - Healing, balance
-- **Emerald** (#10B981) - Available, positive
+- <span style="color:#3B82F6">**Blue**</span> (#3B82F6) — Trust, professionalism
+- <span style="color:#06B6D4">**Cyan**</span> (#06B6D4) — Innovation, freshness
+- <span style="color:#14B8A6">**Teal**</span> (#14B8A6) — Healing, balance
+- <span style="color:#10B981">**Emerald**</span> (#10B981) — Available, positive
 
 Features:
 - 🎨 Gradient cards with depth
