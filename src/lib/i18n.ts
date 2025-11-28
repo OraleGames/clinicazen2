@@ -187,6 +187,36 @@ export const es = {
     noServices: 'No hay servicios disponibles'
   },
 
+  // Categories Management
+  categories: {
+    title: 'Gestión de Categorías',
+    description: 'Administrar categorías disponibles para los servicios',
+    total: 'Total de Categorías',
+    totalDesc: 'Todas las categorías registradas',
+    active: 'Activas',
+    activeDesc: 'Categorías utilizables',
+    inactive: 'Inactivas',
+    inactiveDesc: 'Categorías desactivadas',
+    newCategory: 'Nueva Categoría',
+    createCategory: 'Crear Categoría',
+    editCategory: 'Editar Categoría',
+    name: 'Nombre',
+    descriptionField: 'Descripción',
+    icon: 'Icono',
+    searchPlaceholder: 'Buscar categorías...',
+    allStatus: 'Todos los Estados',
+    edit: 'Editar',
+    delete: 'Eliminar',
+    disable: 'Desactivar',
+    enable: 'Activar',
+    cancel: 'Cancelar',
+    saveChanges: 'Guardar Cambios',
+    confirmDelete: 'Confirmar Eliminación',
+    confirmDeleteMessage: '¿Está seguro que desea eliminar esta categoría? Esta acción no se puede deshacer.',
+    deleteCategory: 'Eliminar Categoría',
+    noCategories: 'No hay categorías disponibles'
+  },
+
   // Common
   common: {
     loading: 'Cargando...',
@@ -241,6 +271,7 @@ export const en = {
     edit: 'Edit',
     delete: 'Delete',
     save: 'Save',
+    saving: 'Saving...',
     cancel: 'Cancel',
     search: 'Search',
     filter: 'Filter',
@@ -394,6 +425,29 @@ export const en = {
     successDeleted: 'Service deleted successfully',
     requiredFields: 'Name, description, price and duration are required',
     noServices: 'No services available'
+  },
+
+  // Categories Management
+  categories: {
+    title: 'Categories Management',
+    description: 'Manage categories available for services',
+    total: 'Total Categories',
+    totalDesc: 'All registered categories',
+    newCategory: 'New Category',
+    createCategory: 'Create Category',
+    editCategory: 'Edit Category',
+    name: 'Name',
+    descriptionField: 'Description',
+    icon: 'Icon',
+    searchPlaceholder: 'Search categories...',
+    edit: 'Edit',
+    delete: 'Delete',
+    cancel: 'Cancel',
+    saveChanges: 'Save Changes',
+    confirmDelete: 'Confirm Delete',
+    confirmDeleteMessage: 'Are you sure you want to delete this category? This action cannot be undone.',
+    deleteCategory: 'Delete Category',
+    noCategories: 'No categories available'
   },
 
   // Common

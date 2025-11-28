@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { BarChart2, Star, FileText, Settings, Calendar, Users, MessageSquare, CreditCard, LogOut, Menu, X, Home, User, CheckCircle } from "lucide-react"
+import { BarChart2, Star, Tag, FileText, Settings, Calendar, Users, MessageSquare, CreditCard, LogOut, Menu, X, Home, User, CheckCircle } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import Link from "next/link"
 
@@ -35,7 +35,8 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
         { icon: Users, label: 'Usuarios', href: `/dashboard/admin/users`, active: pathname.includes('/users') },
         { icon: Calendar, label: 'Citas', href: `/dashboard/admin/appointments`, active: pathname.includes('/appointments') },
         { icon: CreditCard, label: 'Pagos', href: `/dashboard/admin/payments`, active: pathname.includes('/payments') },
-        { icon: FileText, label: 'Servicios', href: `/dashboard/admin/services`, active: pathname.includes('/services') },
+        { icon: FileText, label: 'Terapias', href: `/dashboard/admin/therapies`, active: pathname.includes('/therapies') },
+        { icon: Tag, label: 'Categorías', href: `/dashboard/admin/categories`, active: pathname.includes('/categories') },
         { icon: BarChart2, label: 'Análisis', href: `/dashboard/admin/analytics`, active: pathname.includes('/analytics') },
         { icon: CheckCircle, label: 'Check-in', href: `/dashboard/admin/checkin`, active: pathname.includes('/checkin') },
         { icon: MessageSquare, label: 'Notificaciones', href: `/dashboard/admin/notifications`, active: pathname.includes('/notifications') },

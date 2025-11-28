@@ -37,7 +37,14 @@ export interface DatabaseTherapy {
   price: number
   duration_minutes: number
   category_id?: number
-  category?: string
+  category?: {
+    id: number
+    name: string
+    description?: string
+    icon?: string
+    created_at?: string
+    updated_at?: string
+  }
   slug?: string
   symptoms?: string[]
   diseases?: string[]
@@ -212,70 +219,33 @@ export class UserService {
 export class TherapyService {
   // Get all therapies with optional relationships
   static async getAllTherapies(includeRelations: boolean = false): Promise<DatabaseTherapy[]> {
-    let query = supabase
+    const query = supabase
       .from('therapies')
-      .select('*')
-
-    if (includeRelations) {
-      query = supabase
-        .from('therapies')
-        .select(`
-          *,
-          category:categories(name),
-          symptoms:service_symptoms(symptom:symptoms(name)),
-          diseases:service_diseases(disease:diseases(name))
-        `)
-    }
+      .select(`
+        *,
+        category:categories(*)
+      `)
 
     const { data, error } = await query.order('name', { ascending: true })
 
     if (error) throw error
-
-    // Transform data to flatten relationships if included
-    if (includeRelations && data) {
-      return data.map((therapy: any) => ({
-        ...therapy,
-        category: therapy.category?.name,
-        symptoms: therapy.symptoms?.map((s: any) => s.symptom?.name).filter(Boolean) || [],
-        diseases: therapy.diseases?.map((d: any) => d.disease?.name).filter(Boolean) || []
-      }))
-    }
 
     return data || []
   }
 
   // Get active therapies with optional relationships
   static async getActiveTherapies(includeRelations: boolean = false): Promise<DatabaseTherapy[]> {
-    let query = supabase
+    const query = supabase
       .from('therapies')
-      .select('*')
+      .select(`
+        *,
+        category:categories(*)
+      `)
       .eq('is_active', true)
-
-    if (includeRelations) {
-      query = supabase
-        .from('therapies')
-        .select(`
-          *,
-          category:categories(name),
-          symptoms:service_symptoms(symptom:symptoms(name)),
-          diseases:service_diseases(disease:diseases(name))
-        `)
-        .eq('is_active', true)
-    }
 
     const { data, error } = await query.order('name', { ascending: true })
 
     if (error) throw error
-
-    // Transform data to flatten relationships if included
-    if (includeRelations && data) {
-      return data.map((therapy: any) => ({
-        ...therapy,
-        category: therapy.category?.name,
-        symptoms: therapy.symptoms?.map((s: any) => s.symptom?.name).filter(Boolean) || [],
-        diseases: therapy.diseases?.map((d: any) => d.disease?.name).filter(Boolean) || []
-      }))
-    }
 
     return data || []
   }
@@ -286,23 +256,12 @@ export class TherapyService {
       .from('therapies')
       .select(`
         *,
-        category:categories(name),
-        symptoms:service_symptoms(symptom:symptoms(name)),
-        diseases:service_diseases(disease:diseases(name))
+        category:categories(*)
       `)
       .eq('id', id)
       .single()
 
     if (error) throw error
-
-    if (data) {
-      return {
-        ...data,
-        category: data.category?.name,
-        symptoms: data.symptoms?.map((s: any) => s.symptom?.name).filter(Boolean) || [],
-        diseases: data.diseases?.map((d: any) => d.disease?.name).filter(Boolean) || []
-      }
-    }
 
     return data
   }
@@ -486,9 +445,9 @@ export class TherapyService {
 
     // 4. Insert missing diseases in bulk
     if (missingNames.length > 0) {
-      // @ts-expect-error - Supabase type inference issue
       const { data: insertedDiseases, error: insertError } = await admin
         .from('diseases')
+        // @ts-expect-error - Supabase type inference issue with dynamic table schemas
         .insert(missingNames.map(name => ({ name })))
         .select('id, name')
       if (insertError) throw insertError
