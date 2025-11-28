@@ -5,8 +5,10 @@ import DashboardLayout from '@/components/DashboardLayout'
 import { useAuth } from '@/contexts/AuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Tag, Plus, Edit, Trash2, Search, AlertCircle, Grid3x3, List } from 'lucide-react'
+import { Tag, Plus, Edit, Trash2, Search, AlertCircle } from 'lucide-react'
 import { t } from '@/lib/i18n'
+import IconSelector from '@/components/IconSelector'
+import * as LucideIcons from 'lucide-react'
 import { useServiceCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/lib/hooks/useServiceCategories'
 import type { ServiceCategory } from '@/types/therapy'
 import { toast } from 'sonner'
@@ -25,8 +27,8 @@ export default function AdminCategoriesPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null)
+  const [showIconSelector, setShowIconSelector] = useState(false)
 
   const [formData, setFormData] = useState({
     name: '',
@@ -156,25 +158,6 @@ export default function AdminCategoriesPage() {
             />
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant={viewMode === 'grid' ? 'default' : 'outline'}
-              size="icon"
-              onClick={() => setViewMode('grid')}
-              className={viewMode === 'grid' ? 'bg-cyan-600 hover:bg-cyan-700' : ''}
-            >
-              <Grid3x3 className="h-5 w-5" />
-            </Button>
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'outline'}
-              size="icon"
-              onClick={() => setViewMode('list')}
-              className={viewMode === 'list' ? 'bg-cyan-600 hover:bg-cyan-700' : ''}
-            >
-              <List className="h-5 w-5" />
-            </Button>
-          </div>
-
           <Button
             onClick={startCreate}
             className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg hover:shadow-xl transition-all"
@@ -189,59 +172,33 @@ export default function AdminCategoriesPage() {
             <Tag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600">{t('categories.noCategories')}</p>
           </Card>
-        ) : viewMode === 'grid' ? (
+        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map(cat => (
-              <Card key={cat.id} className="group hover:shadow-xl transition-all duration-300 border hover:border-cyan-300 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-cyan-700 transition-colors line-clamp-1">
-                        {cat.name}
-                      </CardTitle>
-                      {cat.description && (
-                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">{cat.description}</p>
+            {filtered.map(cat => {
+              const IconComponent = cat.icon && LucideIcons[cat.icon as keyof typeof LucideIcons] as React.ComponentType<{ className?: string }> | undefined;
+              
+              return (
+                <Card key={cat.id} className="group hover:shadow-xl transition-all duration-300 border hover:border-cyan-300 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-cyan-700 transition-colors line-clamp-1">
+                          {cat.name}
+                        </CardTitle>
+                        {cat.description && (
+                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">{cat.description}</p>
+                        )}
+                      </div>
+                      {IconComponent && (
+                        <div className="ml-3 flex-shrink-0">
+                          <IconComponent className="h-8 w-8 text-cyan-600 group-hover:text-cyan-700 transition-colors" />
+                        </div>
                       )}
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => startEdit(cat)}
-                      className="hover:bg-cyan-50 hover:text-cyan-700 hover:border-cyan-300"
-                      disabled={updateMutation.isPending}
-                    >
-                      <Edit className="h-4 w-4 mr-1" /> {t('categories.edit')}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowDeleteConfirm(cat.id)}
-                      className="hover:bg-red-50 hover:text-red-700 hover:border-red-300"
-                      disabled={deleteMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" /> {t('categories.delete')}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filtered.map(cat => (
-              <Card key={cat.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 truncate">{cat.name}</h3>
-                      <div className="text-sm text-gray-600 max-w-xs truncate">{cat.description || 'Sin descripción'}</div>
-                    </div>
-                    <div className="flex items-center gap-2 ml-2">
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
                       <Button
                         variant="outline"
                         size="sm"
@@ -249,7 +206,7 @@ export default function AdminCategoriesPage() {
                         className="hover:bg-cyan-50 hover:text-cyan-700 hover:border-cyan-300"
                         disabled={updateMutation.isPending}
                       >
-                        <Edit className="h-4 w-4" />
+                        <Edit className="h-4 w-4 mr-1" /> {t('categories.edit')}
                       </Button>
                       <Button
                         variant="outline"
@@ -258,16 +215,13 @@ export default function AdminCategoriesPage() {
                         className="hover:bg-red-50 hover:text-red-700 hover:border-red-300"
                         disabled={deleteMutation.isPending}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4 mr-1" /> {t('categories.delete')}
                       </Button>
                     </div>
-                  </div>
-                  {cat.description && (
-                    <div className="pt-2 border-t border-gray-100 text-sm text-gray-600 line-clamp-2">{cat.description}</div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
 
@@ -301,13 +255,40 @@ export default function AdminCategoriesPage() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">{t('categories.icon')}</label>
-                    <input
-                      type="text"
-                      value={formData.icon}
-                      onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white placeholder:text-gray-500"
-                      placeholder="Nombre del icono (opcional)"
-                    />
+                    <div className="flex items-center gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowIconSelector(true)}
+                        className="flex-1 justify-start hover:bg-cyan-50 hover:border-cyan-300"
+                      >
+                        {formData.icon ? (
+                          <>
+                            {(() => {
+                              const IconComponent = LucideIcons[formData.icon as keyof typeof LucideIcons] as React.ComponentType<{ className?: string }> | undefined;
+                              return IconComponent ? <IconComponent className="h-5 w-5 mr-2" /> : <Tag className="h-5 w-5 mr-2" />;
+                            })()}
+                            <span>{formData.icon}</span>
+                          </>
+                        ) : (
+                          <>
+                            <Tag className="h-5 w-5 mr-2 text-gray-400" />
+                            <span className="text-gray-500">Seleccionar icono...</span>
+                          </>
+                        )}
+                      </Button>
+                      {formData.icon && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setFormData({ ...formData, icon: '' })}
+                          className="hover:bg-red-50 hover:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex justify-end gap-3 mt-6">
@@ -362,6 +343,19 @@ export default function AdminCategoriesPage() {
                 </Button>
               </div>
             </div>
+          </div>
+        )}
+
+        {showIconSelector && (
+          <div className="fixed inset-0 bg-gray-900/50 flex items-center justify-center z-50 p-4">
+            <IconSelector
+              value={formData.icon}
+              onSelectIcon={(iconName) => {
+                setFormData({ ...formData, icon: iconName });
+                setShowIconSelector(false);
+              }}
+              onClose={() => setShowIconSelector(false)}
+            />
           </div>
         )}
       </div>
