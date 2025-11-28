@@ -30,6 +30,7 @@ import {
   useDeleteService,
   useToggleServiceStatus
 } from '@/lib/hooks/useServices'
+import { useServiceCategories } from '@/lib/hooks/useServiceCategories'
 import { toast } from 'sonner'
 
 interface DatabaseService extends Service {
@@ -42,6 +43,7 @@ export default function AdminServicesDashboard() {
   
   // TanStack Query hooks
   const { data: services = [], isLoading, error: queryError } = useServices(false)
+  const { data: categories = [] } = useServiceCategories()
   const createMutation = useCreateService()
   const updateMutation = useUpdateService()
   const deleteMutation = useDeleteService()
@@ -63,7 +65,8 @@ export default function AdminServicesDashboard() {
     extended_description: '',
     price: 0,
     duration_minutes: 60,
-    image_url: ''
+    image_url: '',
+    category_id: 0
   })
 
   // Handle escape key to close modals
@@ -84,11 +87,12 @@ export default function AdminServicesDashboard() {
   const filteredServices = useMemo(() => {
     return services.filter(service => {
       const matchesSearch = service.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           service.description?.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesCategory = filterCategory === 'all' || service.category === filterCategory
-      const matchesStatus = filterStatus === 'all' || 
-                           (filterStatus === 'active' && service.is_active) ||
-                           (filterStatus === 'inactive' && !service.is_active)
+        service.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      const categoryName = service.category?.name || (service as any).category_name || ''
+      const matchesCategory = filterCategory === 'all' || categoryName === filterCategory
+      const matchesStatus = filterStatus === 'all' ||
+        (filterStatus === 'active' && service.is_active) ||
+        (filterStatus === 'inactive' && !service.is_active)
       return matchesSearch && matchesCategory && matchesStatus
     })
   }, [services, searchTerm, filterCategory, filterStatus])
@@ -98,9 +102,9 @@ export default function AdminServicesDashboard() {
     total: services.length,
     active: services.filter(s => s.is_active).length,
     inactive: services.filter(s => !s.is_active).length,
-    categories: new Set(services.map(s => s.category).filter(Boolean)).size,
-    avgPrice: services.length > 0 
-      ? Math.round(services.reduce((sum, s) => sum + s.price, 0) / services.length) 
+    categories: new Set(services.map(s => s.category?.name || (s as any).category_name).filter(Boolean)).size,
+    avgPrice: services.length > 0
+      ? Math.round(services.reduce((sum, s) => sum + s.price, 0) / services.length)
       : 0
   }), [services])
 
@@ -112,7 +116,8 @@ export default function AdminServicesDashboard() {
       extended_description: service.extended_description || '',
       price: service.price || 0,
       duration_minutes: service.duration_minutes || 60,
-      image_url: service.image_url || ''
+      image_url: service.image_url || '',
+      category_id: service.category_id || 0
     })
     setIsEditing(true)
   }
@@ -125,7 +130,8 @@ export default function AdminServicesDashboard() {
       extended_description: '',
       price: 0,
       duration_minutes: 60,
-      image_url: ''
+      image_url: '',
+      category_id: 0
     })
     setIsCreating(true)
   }
@@ -138,10 +144,12 @@ export default function AdminServicesDashboard() {
         extended_description: formData.extended_description,
         image_url: formData.image_url,
         price: Number(formData.price),
-        duration_minutes: Number(formData.duration_minutes)
+        duration_minutes: Number(formData.duration_minutes),
+        category_id: Number(formData.category_id),
+        is_active: true
       }
 
-      if (!formData.name.trim() || !formData.description.trim() || formData.price <= 0 || formData.duration_minutes <= 0) {
+      if (!formData.name.trim() || !formData.description.trim() || formData.price <= 0 || formData.duration_minutes <= 0 || !formData.category_id) {
         toast.error(t('services.requiredFields'))
         return
       }
@@ -187,7 +195,7 @@ export default function AdminServicesDashboard() {
     }
   }
 
-  const uniqueCategories = Array.from(new Set(services.map(s => s.category).filter(Boolean)))
+  const uniqueCategories = Array.from(new Set(services.map(s => s.category?.name || (s as any).category_name).filter(Boolean))) as string[]
 
   // Show loading state
   if (isLoading) {
@@ -369,9 +377,9 @@ export default function AdminServicesDashboard() {
                       <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-cyan-700 transition-colors line-clamp-1">
                         {service.name || t('services.noName')}
                       </CardTitle>
-                      {service.category && (
+                      {(service.category?.name || (service as any).category_name) && (
                         <Badge variant="outline" className="mt-2 text-xs">
-                          {service.category}
+                          {service.category?.name || (service as any).category_name}
                         </Badge>
                       )}
                     </div>
@@ -489,7 +497,7 @@ export default function AdminServicesDashboard() {
                         {/* Category */}
                         <div className="flex items-center gap-1.5">
                           <Tag className="h-4 w-4 text-gray-400" />
-                          <span className="text-sm text-gray-600">{service.category || 'Sin categoría'}</span>
+                          <span className="text-sm text-gray-600">{service.category?.name || (service as any).category_name || 'Sin categoría'}</span>
                         </div>
 
                         {/* Price */}
@@ -625,6 +633,22 @@ export default function AdminServicesDashboard() {
                         step="15"
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {t('services.category')} *
+                    </label>
+                    <select
+                      value={formData.category_id}
+                      onChange={(e) => setFormData({ ...formData, category_id: Number(e.target.value) })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent text-gray-900 bg-white"
+                    >
+                      <option value={0}>{t('services.selectCategory')}</option>
+                      {categories.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* Image URL field - temporarily disabled

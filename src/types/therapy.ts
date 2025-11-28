@@ -17,7 +17,16 @@ export interface Therapy {
   fullDescription: string;
 }
 
-// Database service type (Supabase)
+// Database service category type (Supabase)
+export interface ServiceCategory {
+  id: number;
+  name: string;
+  description?: string;
+  icon?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface DatabaseService {
   id: number;
   name: string;
@@ -26,15 +35,17 @@ export interface DatabaseService {
   image_url?: string;
   price: number;
   duration_minutes: number;
-  category_id?: number;
+  category_id: number; // mandatory (plan Option A)
   created_at?: string;
   updated_at?: string;
 }
 
 // Extended service type with relationships
 export interface Service extends DatabaseService {
-  category?: string;
-  categories?: string[];
+  // Joined category record from Supabase
+  category?: ServiceCategory;
+  category_name?: string; // convenience when only name is needed
+  categories?: string[]; // legacy static data compatibility
   symptoms?: string[];
   diseases?: string[];
   slug?: string;
@@ -53,7 +64,7 @@ export const createServiceSchema = z.object({
   image_url: z.union([z.url('URL inválida'), z.literal('')]).optional(),
   price: z.number().positive('El precio debe ser mayor a 0'),
   duration_minutes: z.number().int().positive('La duración debe ser mayor a 0'),
-  category_id: z.number().int().positive().optional(),
+  category_id: z.number().int().positive('La categoría es requerida'),
   is_active: z.boolean().default(true),
 })
 
