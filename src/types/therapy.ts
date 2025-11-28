@@ -35,7 +35,7 @@ export interface DatabaseService {
   image_url?: string;
   price: number;
   duration_minutes: number;
-  category_id: number; // mandatory (plan Option A)
+  category_id?: number; // optional to match DB schema
   created_at?: string;
   updated_at?: string;
 }
