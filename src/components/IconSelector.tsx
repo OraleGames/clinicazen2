@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo } from 'react';
 import * as LucideIcons from 'lucide-react';
-import { Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { icons } from 'lucide-react';
 
@@ -18,8 +17,6 @@ const IconSelector: React.FC<IconSelectorProps> = ({ value, onSelectIcon, onClos
   // Get all icon names from lucide-react using the icons object
   const allIconNames = useMemo(() => {
     const iconNames = Object.keys(icons);
-    console.log('Total icons found:', iconNames.length);
-    console.log('Sample icons:', iconNames.slice(0, 20));
     return iconNames;
   }, []);
 
@@ -27,8 +24,6 @@ const IconSelector: React.FC<IconSelectorProps> = ({ value, onSelectIcon, onClos
   const filteredIcons = allIconNames.filter((iconName) =>
     iconName.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  console.log('Filtered icons:', filteredIcons.length);
 
   const handleIconClick = (iconName: string) => {
     onSelectIcon(iconName);
@@ -46,14 +41,14 @@ const IconSelector: React.FC<IconSelectorProps> = ({ value, onSelectIcon, onClos
             onClick={onClose}
             className="hover:bg-gray-100"
           >
-            <X className="h-5 w-5" />
+            <LucideIcons.X className="h-5 w-5" />
           </Button>
         )}
       </div>
 
       <div className="p-4 border-b border-gray-200">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
+          <LucideIcons.Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
           <input
             type="text"
             placeholder="Buscar iconos..."
@@ -103,7 +98,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({ value, onSelectIcon, onClos
 
         {filteredIcons.length === 0 && (
           <div className="text-center py-12">
-            <Search className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+            <LucideIcons.Search className="h-12 w-12 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-500">No se encontraron iconos</p>
             <p className="text-sm text-gray-400 mt-1">Intenta con otro término de búsqueda</p>
           </div>
