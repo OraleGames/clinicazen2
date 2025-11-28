@@ -35,7 +35,7 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
         { icon: Users, label: 'Usuarios', href: `/dashboard/admin/users`, active: pathname.includes('/users') },
         { icon: Calendar, label: 'Citas', href: `/dashboard/admin/appointments`, active: pathname.includes('/appointments') },
         { icon: CreditCard, label: 'Pagos', href: `/dashboard/admin/payments`, active: pathname.includes('/payments') },
-        { icon: FileText, label: 'Terapias', href: `/dashboard/admin/services`, active: pathname.includes('/services') },
+        { icon: FileText, label: 'Terapias', href: `/dashboard/admin/therapies`, active: pathname.includes('/therapies') },
         { icon: Tag, label: 'Categorías', href: `/dashboard/admin/categories`, active: pathname.includes('/categories') },
         { icon: BarChart2, label: 'Análisis', href: `/dashboard/admin/analytics`, active: pathname.includes('/analytics') },
         { icon: CheckCircle, label: 'Check-in', href: `/dashboard/admin/checkin`, active: pathname.includes('/checkin') },

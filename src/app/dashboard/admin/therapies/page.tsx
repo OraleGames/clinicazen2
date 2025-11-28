@@ -195,7 +195,13 @@ export default function AdminServicesDashboard() {
     }
   }
 
-  const uniqueCategories = Array.from(new Set(services.map(s => s.category?.name || (s as any).category_name).filter(Boolean))) as string[]
+  const uniqueCategories = Array.from(
+    new Set(
+      services
+        .map(s => s.category?.name)
+        .filter((name): name is string => Boolean(name))
+    )
+  )
 
   // Show loading state
   if (isLoading) {
