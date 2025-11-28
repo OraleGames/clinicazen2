@@ -25,7 +25,13 @@ async function updateCategory(input: { id: number; name?: string; description?: 
 
 async function deleteCategory(id: number): Promise<number> {
   const { error } = await supabase.from('categories').delete().eq('id', id)
-  if (error) throw new Error(error.message || 'Error al eliminar la categoría')
+  if (error) {
+    // PostgreSQL foreign key violation error code is 23503
+    if (error.code === '23503') {
+      throw new Error('No se puede eliminar la categoría porque está en uso por una o más terapias o servicios.')
+    }
+    throw new Error(error.message || 'Error al eliminar la categoría')
+  }
   return id
 }
 
